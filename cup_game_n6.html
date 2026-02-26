@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Cup Game Graph</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 0; }
+    #top { padding: 10px 14px; border-bottom: 1px solid #ddd; }
+    #svg { width: 100vw; height: calc(100vh - 52px); }
+
+    .node { cursor: pointer; }
+    .label {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+<div id="top">
+  <b>Click nodes to toggle their outgoing edges</b>
+</div>
+<svg id="svg"></svg>
+
+<script>
+const DATA = {"start": 0, "nodes": [{"id": 0, "state": "(1, 1, 1, 1, 1, 1)", "terminal": false}, {"id": 1, "state": "(0, 2, 1, 1, 1, 1)", "terminal": false}, {"id": 2, "state": "(2, 0, 1, 1, 1, 1)", "terminal": false}, {"id": 3, "state": "(1, 0, 2, 1, 1, 1)", "terminal": false}, {"id": 4, "state": "(1, 2, 0, 1, 1, 1)", "terminal": false}, {"id": 5, "state": "(1, 1, 0, 2, 1, 1)", "terminal": false}, {"id": 6, "state": "(1, 1, 2, 0, 1, 1)", "terminal": false}, {"id": 7, "state": "(1, 1, 1, 0, 2, 1)", "terminal": false}, {"id": 8, "state": "(1, 1, 1, 2, 0, 1)", "terminal": false}, {"id": 9, "state": "(1, 1, 1, 1, 0, 2)", "terminal": false}, {"id": 10, "state": "(1, 1, 1, 1, 2, 0)", "terminal": false}, {"id": 11, "state": "(0, 0, 1, 3, 1, 1)", "terminal": false}, {"id": 12, "state": "(0, 3, 0, 1, 1, 1)", "terminal": false}, {"id": 13, "state": "(0, 2, 0, 2, 1, 1)", "terminal": false}, {"id": 14, "state": "(0, 2, 2, 0, 1, 1)", "terminal": false}, {"id": 15, "state": "(0, 2, 1, 0, 2, 1)", "terminal": false}, {"id": 16, "state": "(0, 2, 1, 2, 0, 1)", "terminal": false}, {"id": 17, "state": "(0, 2, 1, 1, 0, 2)", "terminal": false}, {"id": 18, "state": "(0, 2, 1, 1, 2, 0)", "terminal": false}, {"id": 19, "state": "(0, 0, 3, 1, 1, 1)", "terminal": false}, {"id": 20, "state": "(2, 0, 0, 2, 1, 1)", "terminal": false}, {"id": 21, "state": "(2, 0, 2, 0, 1, 1)", "terminal": false}, {"id": 22, "state": "(2, 0, 1, 0, 2, 1)", "terminal": false}, {"id": 23, "state": "(2, 0, 1, 2, 0, 1)", "terminal": false}, {"id": 24, "state": "(2, 0, 1, 1, 0, 2)", "terminal": false}, {"id": 25, "state": "(2, 0, 1, 1, 2, 0)", "terminal": false}, {"id": 26, "state": "(3, 0, 0, 1, 1, 1)", "terminal": false}, {"id": 27, "state": "(1, 0, 0, 1, 3, 1)", "terminal": false}, {"id": 28, "state": "(1, 0, 3, 0, 1, 1)", "terminal": false}, {"id": 29, "state": "(1, 0, 2, 0, 2, 1)", "terminal": false}, {"id": 30, "state": "(1, 0, 2, 2, 0, 1)", "terminal": false}, {"id": 31, "state": "(1, 0, 2, 1, 0, 2)", "terminal": false}, {"id": 32, "state": "(1, 0, 2, 1, 2, 0)", "terminal": false}, {"id": 33, "state": "(1, 0, 0, 3, 1, 1)", "terminal": false}, {"id": 34, "state": "(1, 2, 0, 0, 2, 1)", "terminal": false}, {"id": 35, "state": "(1, 2, 0, 2, 0, 1)", "terminal": false}, {"id": 36, "state": "(1, 2, 0, 1, 0, 2)", "terminal": false}, {"id": 37, "state": "(1, 2, 0, 1, 2, 0)", "terminal": false}, {"id": 38, "state": "(1, 3, 0, 0, 1, 1)", "terminal": false}, {"id": 39, "state": "(1, 1, 0, 0, 1, 3)", "terminal": false}, {"id": 40, "state": "(1, 1, 0, 3, 0, 1)", "terminal": false}, {"id": 41, "state": "(1, 1, 0, 2, 0, 2)", "terminal": false}, {"id": 42, "state": "(1, 1, 0, 2, 2, 0)", "terminal": false}, {"id": 43, "state": "(3, 1, 0, 0, 1, 1)", "terminal": false}, {"id": 44, "state": "(1, 1, 0, 0, 3, 1)", "terminal": false}, {"id": 45, "state": "(1, 1, 2, 0, 0, 2)", "terminal": false}, {"id": 46, "state": "(1, 1, 2, 0, 2, 0)", "terminal": false}, {"id": 47, "state": "(1, 1, 3, 0, 0, 1)", "terminal": false}, {"id": 48, "state": "(1, 1, 1, 0, 3, 0)", "terminal": false}, {"id": 49, "state": "(1, 3, 1, 0, 0, 1)", "terminal": false}, {"id": 50, "state": "(1, 1, 1, 0, 0, 3)", "terminal": false}, {"id": 51, "state": "(1, 1, 1, 3, 0, 0)", "terminal": false}, {"id": 52, "state": "(1, 1, 3, 1, 0, 0)", "terminal": false}, {"id": 53, "state": "(0, 0, 0, 4, 1, 1)", "terminal": false}, {"id": 54, "state": "(0, 0, 1, 4, 0, 1)", "terminal": false}, {"id": 55, "state": "(0, 0, 1, 3, 0, 2)", "terminal": false}, {"id": 56, "state": "(0, 0, 1, 3, 2, 0)", "terminal": false}, {"id": 57, "state": "(0, 0, 0, 1, 4, 1)", "terminal": false}, {"id": 58, "state": "(0, 3, 0, 0, 2, 1)", "terminal": false}, {"id": 59, "state": "(0, 3, 0, 2, 0, 1)", "terminal": false}, {"id": 60, "state": "(0, 3, 0, 1, 0, 2)", "terminal": false}, {"id": 61, "state": "(0, 3, 0, 1, 2, 0)", "terminal": false}, {"id": 62, "state": "(0, 4, 0, 0, 1, 1)", "terminal": false}, {"id": 63, "state": "(0, 2, 0, 0, 1, 3)", "terminal": false}, {"id": 64, "state": "(0, 2, 0, 3, 0, 1)", "terminal": false}, {"id": 65, "state": "(0, 2, 0, 2, 0, 2)", "terminal": false}, {"id": 66, "state": "(0, 2, 0, 2, 2, 0)", "terminal": false}, {"id": 67, "state": "(0, 2, 0, 0, 3, 1)", "terminal": false}, {"id": 68, "state": "(0, 2, 2, 0, 0, 2)", "terminal": true}, {"id": 69, "state": "(0, 2, 2, 0, 2, 0)", "terminal": false}, {"id": 70, "state": "(0, 2, 3, 0, 0, 1)", "terminal": false}, {"id": 71, "state": "(0, 2, 1, 0, 3, 0)", "terminal": false}, {"id": 72, "state": "(0, 4, 1, 0, 0, 1)", "terminal": false}, {"id": 73, "state": "(0, 2, 1, 0, 0, 3)", "terminal": false}, {"id": 74, "state": "(0, 2, 1, 3, 0, 0)", "terminal": false}, {"id": 75, "state": "(0, 2, 3, 1, 0, 0)", "terminal": false}, {"id": 76, "state": "(0, 0, 0, 1, 1, 4)", "terminal": false}, {"id": 77, "state": "(0, 0, 4, 0, 1, 1)", "terminal": false}, {"id": 78, "state": "(0, 0, 3, 0, 2, 1)", "terminal": false}, {"id": 79, "state": "(0, 0, 3, 2, 0, 1)", "terminal": false}, {"id": 80, "state": "(0, 0, 3, 1, 0, 2)", "terminal": false}, {"id": 81, "state": "(0, 0, 3, 1, 2, 0)", "terminal": false}, {"id": 82, "state": "(2, 0, 0, 0, 1, 3)", "terminal": false}, {"id": 83, "state": "(2, 0, 0, 3, 0, 1)", "terminal": false}, {"id": 84, "state": "(2, 0, 0, 2, 0, 2)", "terminal": false}, {"id": 85, "state": "(2, 0, 0, 2, 2, 0)", "terminal": true}, {"id": 86, "state": "(4, 0, 0, 0, 1, 1)", "terminal": false}, {"id": 87, "state": "(2, 0, 0, 0, 3, 1)", "terminal": false}, {"id": 88, "state": "(2, 0, 2, 0, 0, 2)", "terminal": false}, {"id": 89, "state": "(2, 0, 2, 0, 2, 0)", "terminal": false}, {"id": 90, "state": "(2, 0, 3, 0, 0, 1)", "terminal": false}, {"id": 91, "state": "(2, 0, 1, 0, 3, 0)", "terminal": false}, {"id": 92, "state": "(2, 0, 1, 0, 0, 3)", "terminal": false}, {"id": 93, "state": "(2, 0, 1, 3, 0, 0)", "terminal": false}, {"id": 94, "state": "(2, 0, 3, 1, 0, 0)", "terminal": false}, {"id": 95, "state": "(3, 0, 0, 0, 2, 1)", "terminal": false}, {"id": 96, "state": "(3, 0, 0, 2, 0, 1)", "terminal": false}, {"id": 97, "state": "(3, 0, 0, 1, 0, 2)", "terminal": false}, {"id": 98, "state": "(3, 0, 0, 1, 2, 0)", "terminal": false}, {"id": 99, "state": "(1, 0, 0, 0, 4, 1)", "terminal": false}, {"id": 100, "state": "(1, 0, 0, 1, 4, 0)", "terminal": false}, {"id": 101, "state": "(1, 0, 0, 0, 1, 4)", "terminal": false}, {"id": 102, "state": "(1, 0, 3, 0, 0, 2)", "terminal": false}, {"id": 103, "state": "(1, 0, 3, 0, 2, 0)", "terminal": false}, {"id": 104, "state": "(1, 0, 4, 0, 0, 1)", "terminal": true}, {"id": 105, "state": "(1, 0, 2, 0, 3, 0)", "terminal": false}, {"id": 106, "state": "(1, 0, 2, 0, 0, 3)", "terminal": false}, {"id": 107, "state": "(1, 0, 2, 3, 0, 0)", "terminal": false}, {"id": 108, "state": "(1, 0, 4, 1, 0, 0)", "terminal": false}, {"id": 109, "state": "(1, 0, 0, 4, 0, 1)", "terminal": true}, {"id": 110, "state": "(1, 0, 0, 3, 0, 2)", "terminal": false}, {"id": 111, "state": "(1, 0, 0, 3, 2, 0)", "terminal": false}, {"id": 112, "state": "(1, 2, 0, 0, 3, 0)", "terminal": false}, {"id": 113, "state": "(1, 4, 0, 0, 0, 1)", "terminal": false}, {"id": 114, "state": "(1, 2, 0, 0, 0, 3)", "terminal": false}, {"id": 115, "state": "(1, 2, 0, 3, 0, 0)", "terminal": false}, {"id": 116, "state": "(1, 3, 0, 0, 0, 2)", "terminal": false}, {"id": 117, "state": "(1, 3, 0, 0, 2, 0)", "terminal": false}, {"id": 118, "state": "(1, 1, 0, 0, 0, 4)", "terminal": false}, {"id": 119, "state": "(4, 1, 0, 0, 0, 1)", "terminal": false}, {"id": 120, "state": "(1, 1, 0, 4, 0, 0)", "terminal": false}, {"id": 121, "state": "(3, 1, 0, 0, 0, 2)", "terminal": false}, {"id": 122, "state": "(3, 1, 0, 0, 2, 0)", "terminal": false}, {"id": 123, "state": "(1, 1, 0, 0, 4, 0)", "terminal": false}, {"id": 124, "state": "(1, 1, 4, 0, 0, 0)", "terminal": false}, {"id": 125, "state": "(1, 4, 1, 0, 0, 0)", "terminal": false}, {"id": 126, "state": "(4, 1, 1, 0, 0, 0)", "terminal": false}, {"id": 127, "state": "(0, 0, 0, 5, 0, 1)", "terminal": true}, {"id": 128, "state": "(0, 0, 0, 4, 0, 2)", "terminal": false}, {"id": 129, "state": "(0, 0, 0, 4, 2, 0)", "terminal": true}, {"id": 130, "state": "(0, 0, 1, 5, 0, 0)", "terminal": false}, {"id": 131, "state": "(0, 0, 3, 3, 0, 0)", "terminal": true}, {"id": 132, "state": "(0, 0, 0, 0, 5, 1)", "terminal": false}, {"id": 133, "state": "(0, 0, 0, 1, 5, 0)", "terminal": false}, {"id": 134, "state": "(0, 3, 0, 0, 3, 0)", "terminal": false}, {"id": 135, "state": "(0, 5, 0, 0, 0, 1)", "terminal": true}, {"id": 136, "state": "(0, 3, 0, 0, 0, 3)", "terminal": true}, {"id": 137, "state": "(0, 3, 0, 3, 0, 0)", "terminal": true}, {"id": 138, "state": "(0, 0, 0, 0, 1, 5)", "terminal": false}, {"id": 139, "state": "(0, 4, 0, 0, 0, 2)", "terminal": false}, {"id": 140, "state": "(0, 4, 0, 0, 2, 0)", "terminal": true}, {"id": 141, "state": "(0, 2, 0, 0, 0, 4)", "terminal": false}, {"id": 142, "state": "(0, 2, 0, 4, 0, 0)", "terminal": false}, {"id": 143, "state": "(0, 2, 0, 0, 4, 0)", "terminal": true}, {"id": 144, "state": "(0, 2, 4, 0, 0, 0)", "terminal": true}, {"id": 145, "state": "(0, 5, 1, 0, 0, 0)", "terminal": false}, {"id": 146, "state": "(0, 0, 1, 0, 0, 5)", "terminal": true}, {"id": 147, "state": "(0, 0, 0, 0, 2, 4)", "terminal": true}, {"id": 148, "state": "(0, 0, 0, 2, 0, 4)", "terminal": false}, {"id": 149, "state": "(0, 0, 0, 1, 0, 5)", "terminal": true}, {"id": 150, "state": "(0, 0, 4, 0, 0, 2)", "terminal": true}, {"id": 151, "state": "(0, 0, 4, 0, 2, 0)", "terminal": false}, {"id": 152, "state": "(0, 0, 5, 0, 0, 1)", "terminal": true}, {"id": 153, "state": "(0, 0, 3, 0, 3, 0)", "terminal": true}, {"id": 154, "state": "(0, 0, 3, 0, 0, 3)", "terminal": false}, {"id": 155, "state": "(0, 0, 5, 1, 0, 0)", "terminal": false}, {"id": 156, "state": "(2, 0, 0, 0, 0, 4)", "terminal": true}, {"id": 157, "state": "(5, 0, 0, 0, 0, 1)", "terminal": false}, {"id": 158, "state": "(2, 0, 0, 4, 0, 0)", "terminal": true}, {"id": 159, "state": "(4, 0, 0, 0, 0, 2)", "terminal": true}, {"id": 160, "state": "(4, 0, 0, 0, 2, 0)", "terminal": false}, {"id": 161, "state": "(2, 0, 0, 0, 4, 0)", "terminal": false}, {"id": 162, "state": "(2, 0, 4, 0, 0, 0)", "terminal": false}, {"id": 163, "state": "(5, 0, 1, 0, 0, 0)", "terminal": true}, {"id": 164, "state": "(3, 0, 0, 0, 3, 0)", "terminal": true}, {"id": 165, "state": "(3, 0, 0, 0, 0, 3)", "terminal": true}, {"id": 166, "state": "(3, 0, 0, 3, 0, 0)", "terminal": false}, {"id": 167, "state": "(1, 0, 0, 0, 5, 0)", "terminal": true}, {"id": 168, "state": "(5, 0, 0, 1, 0, 0)", "terminal": true}, {"id": 169, "state": "(1, 0, 0, 0, 0, 5)", "terminal": false}, {"id": 170, "state": "(1, 0, 5, 0, 0, 0)", "terminal": true}, {"id": 171, "state": "(4, 0, 2, 0, 0, 0)", "terminal": false}, {"id": 172, "state": "(1, 0, 0, 5, 0, 0)", "terminal": true}, {"id": 173, "state": "(1, 5, 0, 0, 0, 0)", "terminal": false}, {"id": 174, "state": "(4, 2, 0, 0, 0, 0)", "terminal": true}, {"id": 175, "state": "(5, 1, 0, 0, 0, 0)", "terminal": false}, {"id": 176, "state": "(0, 0, 0, 6, 0, 0)", "terminal": true}, {"id": 177, "state": "(0, 0, 0, 0, 6, 0)", "terminal": true}, {"id": 178, "state": "(0, 6, 0, 0, 0, 0)", "terminal": true}, {"id": 179, "state": "(0, 0, 0, 0, 0, 6)", "terminal": true}, {"id": 180, "state": "(0, 0, 6, 0, 0, 0)", "terminal": true}, {"id": 181, "state": "(6, 0, 0, 0, 0, 0)", "terminal": true}], "edges": [{"source": 0, "target": 1}, {"source": 0, "target": 2}, {"source": 0, "target": 3}, {"source": 0, "target": 4}, {"source": 0, "target": 5}, {"source": 0, "target": 6}, {"source": 0, "target": 7}, {"source": 0, "target": 8}, {"source": 0, "target": 9}, {"source": 0, "target": 10}, {"source": 1, "target": 11}, {"source": 1, "target": 12}, {"source": 1, "target": 13}, {"source": 1, "target": 14}, {"source": 1, "target": 15}, {"source": 1, "target": 16}, {"source": 1, "target": 17}, {"source": 1, "target": 18}, {"source": 2, "target": 19}, {"source": 2, "target": 20}, {"source": 2, "target": 21}, {"source": 2, "target": 22}, {"source": 2, "target": 23}, {"source": 2, "target": 24}, {"source": 2, "target": 25}, {"source": 3, "target": 26}, {"source": 3, "target": 27}, {"source": 3, "target": 28}, {"source": 3, "target": 29}, {"source": 3, "target": 30}, {"source": 3, "target": 31}, {"source": 3, "target": 32}, {"source": 4, "target": 12}, {"source": 4, "target": 33}, {"source": 4, "target": 34}, {"source": 4, "target": 35}, {"source": 4, "target": 36}, {"source": 4, "target": 37}, {"source": 5, "target": 13}, {"source": 5, "target": 20}, {"source": 5, "target": 38}, {"source": 5, "target": 39}, {"source": 5, "target": 40}, {"source": 5, "target": 41}, {"source": 5, "target": 42}, {"source": 6, "target": 14}, {"source": 6, "target": 21}, {"source": 6, "target": 28}, {"source": 6, "target": 43}, {"source": 6, "target": 44}, {"source": 6, "target": 45}, {"source": 6, "target": 46}, {"source": 7, "target": 15}, {"source": 7, "target": 22}, {"source": 7, "target": 29}, {"source": 7, "target": 34}, {"source": 7, "target": 47}, {"source": 7, "target": 48}, {"source": 8, "target": 16}, {"source": 8, "target": 23}, {"source": 8, "target": 30}, {"source": 8, "target": 35}, {"source": 8, "target": 40}, {"source": 8, "target": 49}, {"source": 8, "target": 50}, {"source": 9, "target": 17}, {"source": 9, "target": 24}, {"source": 9, "target": 31}, {"source": 9, "target": 36}, {"source": 9, "target": 41}, {"source": 9, "target": 45}, {"source": 9, "target": 51}, {"source": 10, "target": 18}, {"source": 10, "target": 25}, {"source": 10, "target": 32}, {"source": 10, "target": 37}, {"source": 10, "target": 42}, {"source": 10, "target": 46}, {"source": 10, "target": 48}, {"source": 10, "target": 52}, {"source": 11, "target": 53}, {"source": 11, "target": 54}, {"source": 11, "target": 55}, {"source": 11, "target": 56}, {"source": 12, "target": 57}, {"source": 12, "target": 58}, {"source": 12, "target": 59}, {"source": 12, "target": 60}, {"source": 12, "target": 61}, {"source": 13, "target": 53}, {"source": 13, "target": 62}, {"source": 13, "target": 63}, {"source": 13, "target": 64}, {"source": 13, "target": 65}, {"source": 13, "target": 66}, {"source": 14, "target": 67}, {"source": 14, "target": 68}, {"source": 14, "target": 69}, {"source": 15, "target": 58}, {"source": 15, "target": 70}, {"source": 15, "target": 71}, {"source": 16, "target": 54}, {"source": 16, "target": 59}, {"source": 16, "target": 64}, {"source": 16, "target": 72}, {"source": 16, "target": 73}, {"source": 17, "target": 55}, {"source": 17, "target": 60}, {"source": 17, "target": 65}, {"source": 17, "target": 68}, {"source": 17, "target": 74}, {"source": 18, "target": 56}, {"source": 18, "target": 61}, {"source": 18, "target": 66}, {"source": 18, "target": 69}, {"source": 18, "target": 71}, {"source": 18, "target": 75}, {"source": 19, "target": 76}, {"source": 19, "target": 77}, {"source": 19, "target": 78}, {"source": 19, "target": 79}, {"source": 19, "target": 80}, {"source": 19, "target": 81}, {"source": 20, "target": 82}, {"source": 20, "target": 83}, {"source": 20, "target": 84}, {"source": 20, "target": 85}, {"source": 21, "target": 77}, {"source": 21, "target": 86}, {"source": 21, "target": 87}, {"source": 21, "target": 88}, {"source": 21, "target": 89}, {"source": 22, "target": 78}, {"source": 22, "target": 90}, {"source": 22, "target": 91}, {"source": 23, "target": 79}, {"source": 23, "target": 83}, {"source": 23, "target": 92}, {"source": 24, "target": 80}, {"source": 24, "target": 84}, {"source": 24, "target": 88}, {"source": 24, "target": 93}, {"source": 25, "target": 81}, {"source": 25, "target": 85}, {"source": 25, "target": 89}, {"source": 25, "target": 91}, {"source": 25, "target": 94}, {"source": 26, "target": 53}, {"source": 26, "target": 95}, {"source": 26, "target": 96}, {"source": 26, "target": 97}, {"source": 26, "target": 98}, {"source": 27, "target": 99}, {"source": 27, "target": 100}, {"source": 28, "target": 101}, {"source": 28, "target": 102}, {"source": 28, "target": 103}, {"source": 29, "target": 95}, {"source": 29, "target": 99}, {"source": 29, "target": 104}, {"source": 29, "target": 105}, {"source": 30, "target": 96}, {"source": 30, "target": 106}, {"source": 31, "target": 97}, {"source": 31, "target": 102}, {"source": 31, "target": 107}, {"source": 32, "target": 98}, {"source": 32, "target": 100}, {"source": 32, "target": 103}, {"source": 32, "target": 105}, {"source": 32, "target": 108}, {"source": 33, "target": 86}, {"source": 33, "target": 109}, {"source": 33, "target": 110}, {"source": 33, "target": 111}, {"source": 34, "target": 58}, {"source": 34, "target": 112}, {"source": 35, "target": 59}, {"source": 35, "target": 109}, {"source": 35, "target": 113}, {"source": 35, "target": 114}, {"source": 36, "target": 60}, {"source": 36, "target": 110}, {"source": 36, "target": 115}, {"source": 37, "target": 61}, {"source": 37, "target": 111}, {"source": 37, "target": 112}, {"source": 38, "target": 62}, {"source": 38, "target": 99}, {"source": 38, "target": 116}, {"source": 38, "target": 117}, {"source": 39, "target": 63}, {"source": 39, "target": 82}, {"source": 39, "target": 118}, {"source": 40, "target": 64}, {"source": 40, "target": 83}, {"source": 40, "target": 119}, {"source": 41, "target": 65}, {"source": 41, "target": 84}, {"source": 41, "target": 116}, {"source": 41, "target": 118}, {"source": 41, "target": 120}, {"source": 42, "target": 66}, {"source": 42, "target": 85}, {"source": 42, "target": 117}, {"source": 43, "target": 86}, {"source": 43, "target": 121}, {"source": 43, "target": 122}, {"source": 44, "target": 67}, {"source": 44, "target": 87}, {"source": 44, "target": 113}, {"source": 44, "target": 123}, {"source": 45, "target": 68}, {"source": 45, "target": 88}, {"source": 45, "target": 102}, {"source": 45, "target": 121}, {"source": 46, "target": 69}, {"source": 46, "target": 89}, {"source": 46, "target": 103}, {"source": 46, "target": 122}, {"source": 46, "target": 123}, {"source": 46, "target": 124}, {"source": 47, "target": 70}, {"source": 47, "target": 90}, {"source": 47, "target": 104}, {"source": 47, "target": 118}, {"source": 48, "target": 71}, {"source": 48, "target": 91}, {"source": 48, "target": 105}, {"source": 48, "target": 112}, {"source": 48, "target": 125}, {"source": 49, "target": 72}, {"source": 49, "target": 113}, {"source": 50, "target": 73}, {"source": 50, "target": 92}, {"source": 50, "target": 106}, {"source": 50, "target": 114}, {"source": 50, "target": 124}, {"source": 51, "target": 74}, {"source": 51, "target": 93}, {"source": 51, "target": 107}, {"source": 51, "target": 115}, {"source": 51, "target": 120}, {"source": 51, "target": 126}, {"source": 52, "target": 75}, {"source": 52, "target": 94}, {"source": 52, "target": 108}, {"source": 52, "target": 124}, {"source": 53, "target": 127}, {"source": 53, "target": 128}, {"source": 53, "target": 129}, {"source": 54, "target": 127}, {"source": 55, "target": 128}, {"source": 55, "target": 130}, {"source": 56, "target": 129}, {"source": 56, "target": 131}, {"source": 57, "target": 132}, {"source": 57, "target": 133}, {"source": 58, "target": 132}, {"source": 58, "target": 134}, {"source": 59, "target": 135}, {"source": 59, "target": 136}, {"source": 60, "target": 137}, {"source": 61, "target": 133}, {"source": 61, "target": 134}, {"source": 62, "target": 138}, {"source": 62, "target": 139}, {"source": 62, "target": 140}, {"source": 63, "target": 141}, {"source": 64, "target": 127}, {"source": 65, "target": 128}, {"source": 65, "target": 139}, {"source": 65, "target": 141}, {"source": 65, "target": 142}, {"source": 66, "target": 129}, {"source": 66, "target": 140}, {"source": 67, "target": 135}, {"source": 67, "target": 143}, {"source": 69, "target": 143}, {"source": 69, "target": 144}, {"source": 70, "target": 141}, {"source": 71, "target": 134}, {"source": 71, "target": 145}, {"source": 72, "target": 146}, {"source": 72, "target": 135}, {"source": 73, "target": 136}, {"source": 73, "target": 144}, {"source": 74, "target": 130}, {"source": 74, "target": 137}, {"source": 74, "target": 142}, {"source": 75, "target": 131}, {"source": 75, "target": 144}, {"source": 76, "target": 147}, {"source": 76, "target": 148}, {"source": 76, "target": 149}, {"source": 77, "target": 150}, {"source": 77, "target": 151}, {"source": 78, "target": 147}, {"source": 78, "target": 152}, {"source": 78, "target": 153}, {"source": 79, "target": 148}, {"source": 79, "target": 154}, {"source": 80, "target": 149}, {"source": 80, "target": 150}, {"source": 80, "target": 131}, {"source": 81, "target": 151}, {"source": 81, "target": 153}, {"source": 81, "target": 155}, {"source": 82, "target": 156}, {"source": 83, "target": 157}, {"source": 84, "target": 156}, {"source": 84, "target": 158}, {"source": 86, "target": 132}, {"source": 86, "target": 159}, {"source": 86, "target": 160}, {"source": 87, "target": 161}, {"source": 88, "target": 150}, {"source": 88, "target": 159}, {"source": 89, "target": 151}, {"source": 89, "target": 160}, {"source": 89, "target": 161}, {"source": 89, "target": 162}, {"source": 90, "target": 152}, {"source": 90, "target": 156}, {"source": 91, "target": 153}, {"source": 92, "target": 154}, {"source": 92, "target": 162}, {"source": 93, "target": 131}, {"source": 93, "target": 158}, {"source": 93, "target": 163}, {"source": 94, "target": 155}, {"source": 94, "target": 162}, {"source": 95, "target": 164}, {"source": 96, "target": 127}, {"source": 96, "target": 165}, {"source": 97, "target": 128}, {"source": 97, "target": 166}, {"source": 98, "target": 129}, {"source": 98, "target": 164}, {"source": 99, "target": 157}, {"source": 99, "target": 167}, {"source": 100, "target": 167}, {"source": 100, "target": 168}, {"source": 101, "target": 169}, {"source": 102, "target": 169}, {"source": 103, "target": 170}, {"source": 105, "target": 164}, {"source": 105, "target": 167}, {"source": 106, "target": 165}, {"source": 106, "target": 170}, {"source": 107, "target": 166}, {"source": 107, "target": 171}, {"source": 108, "target": 170}, {"source": 110, "target": 159}, {"source": 110, "target": 172}, {"source": 111, "target": 160}, {"source": 112, "target": 134}, {"source": 112, "target": 173}, {"source": 113, "target": 135}, {"source": 113, "target": 169}, {"source": 114, "target": 136}, {"source": 115, "target": 137}, {"source": 115, "target": 172}, {"source": 115, "target": 174}, {"source": 116, "target": 139}, {"source": 117, "target": 140}, {"source": 117, "target": 167}, {"source": 118, "target": 141}, {"source": 118, "target": 156}, {"source": 118, "target": 173}, {"source": 119, "target": 157}, {"source": 120, "target": 142}, {"source": 120, "target": 158}, {"source": 121, "target": 159}, {"source": 122, "target": 160}, {"source": 123, "target": 143}, {"source": 123, "target": 161}, {"source": 123, "target": 175}, {"source": 124, "target": 144}, {"source": 124, "target": 162}, {"source": 124, "target": 170}, {"source": 125, "target": 145}, {"source": 125, "target": 173}, {"source": 126, "target": 163}, {"source": 126, "target": 171}, {"source": 126, "target": 174}, {"source": 128, "target": 176}, {"source": 130, "target": 176}, {"source": 132, "target": 177}, {"source": 133, "target": 177}, {"source": 134, "target": 177}, {"source": 134, "target": 178}, {"source": 138, "target": 179}, {"source": 139, "target": 179}, {"source": 141, "target": 178}, {"source": 142, "target": 176}, {"source": 145, "target": 178}, {"source": 148, "target": 179}, {"source": 151, "target": 180}, {"source": 154, "target": 179}, {"source": 154, "target": 180}, {"source": 155, "target": 180}, {"source": 157, "target": 179}, {"source": 160, "target": 177}, {"source": 161, "target": 181}, {"source": 162, "target": 180}, {"source": 166, "target": 176}, {"source": 166, "target": 181}, {"source": 169, "target": 181}, {"source": 171, "target": 181}, {"source": 173, "target": 178}, {"source": 175, "target": 181}], "node_width": 46.153846153846146, "node_height": 20.51282051282051, "font_size": 5.6410256410256405, "vertical_spacing": 51.28205128205128};
+
+const svg = document.getElementById("svg");
+const W = svg.clientWidth;
+
+const NODE_W = DATA.node_width;
+const NODE_H = DATA.node_height;
+const FONT = DATA.font_size;
+const VSPACE = DATA.vertical_spacing;
+
+const nodes = new Map(DATA.nodes.map(n => [n.id, n]));
+const out = new Map();
+for (const e of DATA.edges) {
+  if (!out.has(e.source)) out.set(e.source, []);
+  out.get(e.source).push(e.target);
+}
+
+// BFS layering
+const depth = new Map([[DATA.start, 0]]);
+const q = [DATA.start];
+
+while (q.length) {
+  const u = q.shift();
+  const du = depth.get(u);
+  for (const v of (out.get(u) || [])) {
+    if (!depth.has(v)) {
+      depth.set(v, du + 1);
+      q.push(v);
+    }
+  }
+}
+
+const layers = new Map();
+for (const [id, d] of depth.entries()) {
+  if (!layers.has(d)) layers.set(d, []);
+  layers.get(d).push(id);
+}
+
+const pos = new Map();
+const maxD = Math.max(...layers.keys());
+
+for (let d = 0; d <= maxD; d++) {
+  const layer = layers.get(d) || [];
+  const y = 60 + d * VSPACE;
+  const spacing = (W - 80) / Math.max(1, layer.length);
+  for (let i = 0; i < layer.length; i++) {
+    const x = 40 + i * spacing;
+    pos.set(layer[i], {x, y});
+  }
+}
+
+let expanded = new Set([DATA.start]);
+
+function clear() {
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+}
+
+function draw() {
+  clear();
+
+  // nodes that currently have visible incoming edges
+  const activeTargets = new Set();
+
+  // edges
+  for (const u of expanded) {
+    const pu = pos.get(u);
+    for (const v of (out.get(u) || [])) {
+      const pv = pos.get(v);
+      if (!pu || !pv) continue;
+
+      activeTargets.add(v);
+
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", pu.x);
+      line.setAttribute("y1", pu.y);
+      line.setAttribute("x2", pv.x);
+      line.setAttribute("y2", pv.y);
+      line.setAttribute("stroke", "#aaa");
+      svg.appendChild(line);
+    }
+  }
+
+  // nodes
+  for (const [id, p] of pos.entries()) {
+    const n = nodes.get(id);
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.classList.add("node");
+
+    g.addEventListener("click", () => {
+      if (expanded.has(id)) expanded.delete(id);
+      else expanded.add(id);
+      draw();
+    });
+
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("x", p.x - NODE_W/2);
+    rect.setAttribute("y", p.y - NODE_H/2);
+    rect.setAttribute("width", NODE_W);
+    rect.setAttribute("height", NODE_H);
+    rect.setAttribute("rx", 10 * (NODE_W/90));
+    rect.setAttribute("stroke", "#333");
+    rect.setAttribute("stroke-width", (id === DATA.start) ? "3" : "1.5");
+
+    const isActive = activeTargets.has(id);
+
+    if (n.terminal) {
+      rect.setAttribute("fill", isActive ? "#9ec9f5" : "#d6eaff");
+    } else {
+      rect.setAttribute("fill", isActive ? "#dddddd" : "#ffffff");
+    }
+
+    g.appendChild(rect);
+
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", p.x);
+    text.setAttribute("y", p.y + 4);
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("font-size", FONT);
+    text.setAttribute("class", "label");
+    text.textContent = n.state;
+    g.appendChild(text);
+
+    svg.appendChild(g);
+  }
+}
+
+draw();
+</script>
+</body>
+</html>
