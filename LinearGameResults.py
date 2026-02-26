@@ -78,4 +78,4 @@ def write_strategy_paths(n, max_paths=None):
 
 if __name__ == "__main__":
     n = 9
-    write_strategy_paths(n, max_paths=None)  # set None if you're brave
+    write_strategy_paths(n, max_paths=None)
