@@ -1,4 +1,3 @@
-```python
 from functools import lru_cache
 
 def canon(state):
@@ -40,4 +39,3 @@ def winner_for_n(n):
 if __name__ == "__main__":
     for n in range(1, 25):
         print(n, winner_for_n(n))
-```

@@ -59,5 +59,5 @@ def first_wins(n):
     return winning(canon((1,) * n))
 
 if __name__ == "__main__":
-    for n in range(1, 21):
+    for n in range(1, 3):
         print(n, "First wins" if first_wins(n) else "Second wins")
